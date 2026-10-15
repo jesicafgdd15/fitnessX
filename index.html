@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fit X – Hitung BMI &amp; Dapatkan Latihan yang Pas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#EDF1F5;--surface:#FFFFFF;--ink:#14212E;--muted:#55657A;--line:#D3DBE4;
+  --accent:#2748E8;--accent-ink:#FFFFFF;--hi:#FFD23F;
+  --c1:#4C9BE8;--c2:#2FA866;--c3:#F0A020;--c4:#D8453A;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;--bg:#0E1620;--surface:#17232F;--ink:#EAF0F6;--muted:#9BABBD;--line:#2B3B4C;
+  --accent:#7B93FF;--accent-ink:#0E1620;--hi:#FFD23F;
+  --c1:#5FA9EE;--c2:#3DBB78;--c3:#F5B040;--c4:#EC6358;}}
+:root[data-theme="dark"]{
+  color-scheme:dark;--bg:#0E1620;--surface:#17232F;--ink:#EAF0F6;--muted:#9BABBD;--line:#2B3B4C;
+  --accent:#7B93FF;--accent-ink:#0E1620;--hi:#FFD23F;
+  --c1:#5FA9EE;--c2:#3DBB78;--c3:#F5B040;--c4:#EC6358;}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 "Barlow",system-ui,-apple-system,"Segoe UI",sans-serif}
+h1,h2,h3{font-family:"Barlow Condensed","Arial Narrow",Impact,sans-serif;line-height:1;margin:0;letter-spacing:.01em}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+header{display:flex;justify-content:space-between;align-items:center;padding:20px 0}
+.logo{font:800 30px/1 "Barlow Condensed",Impact,sans-serif;letter-spacing:.02em}
+.logo span{background:var(--hi);color:#14212E;padding:0 7px;margin-left:3px;border-radius:3px}
+nav a{color:var(--muted);text-decoration:none;margin-left:20px;font-weight:500}
+nav a:hover,nav a:focus-visible{color:var(--ink)}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:start;padding:24px 0 56px}
+.hero h1{font-size:clamp(52px,8.5vw,104px);font-weight:800;text-transform:none}
+.hero h1 mark{background:var(--hi);color:#14212E;padding:0 .12em;border-radius:4px}
+.hero p.lead{max-width:46ch;color:var(--muted);font-size:19px;margin:22px 0 0}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:26px}
+.card h2{font-size:30px;margin-bottom:18px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+label{display:block;font-weight:600;font-size:15px;margin-bottom:5px}
+input{width:100%;font:inherit;padding:12px 13px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+input:focus{border-color:var(--accent)}
+.full{grid-column:1/-1}
+button.go{margin-top:20px;width:100%;font:700 22px/1 "Barlow Condensed",Impact,sans-serif;letter-spacing:.04em;padding:15px;border:0;border-radius:8px;background:var(--accent);color:var(--accent-ink);cursor:pointer}
+button.go:active{transform:translateY(1px)}
+.err{color:var(--c4);font-weight:600;margin:12px 0 0;min-height:1.4em}
+
+#hasil{display:none;padding:8px 0 56px}
+#hasil.on{display:block}
+.res{display:grid;grid-template-columns:.8fr 1.2fr;gap:24px}
+.big{font:800 clamp(84px,14vw,140px)/.9 "Barlow Condensed",Impact,sans-serif}
+.cat{display:inline-block;font-weight:700;padding:4px 12px;border-radius:99px;color:#fff;margin-top:10px}
+.meta{color:var(--muted);margin:10px 0 0}
+.scale{position:relative;margin:34px 0 8px}
+.bar{display:flex;height:16px;border-radius:8px;overflow:hidden}
+.bar i{display:block}
+.pin{position:absolute;top:-9px;width:4px;height:34px;background:var(--ink);border-radius:2px;transform:translateX(-2px);transition:left .7s cubic-bezier(.2,.8,.2,1)}
+.ticks{position:relative;height:20px;font-size:13px;color:var(--muted)}
+.ticks span{position:absolute;transform:translateX(-50%)}
+.ex{list-style:none;margin:16px 0 0;padding:0}
+.ex li{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-top:1px solid var(--line)}
+.ex li:first-child{border-top:0}
+.ex b{font-weight:600}
+.ex em{font-style:normal;font-weight:700;white-space:nowrap}
+.note{margin-top:14px;color:var(--muted);font-size:15px}
+.cheer{font:700 28px/1.1 "Barlow Condensed",Impact,sans-serif;margin:26px 0 0}
+
+section.kat{padding:24px 0 60px}
+section.kat>h2{font-size:clamp(36px,5vw,56px);margin-bottom:8px}
+section.kat>p{color:var(--muted);margin:0 0 26px;max-width:56ch}
+.cols{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.col{background:var(--surface);border:1px solid var(--line);border-top:6px solid var(--k);border-radius:12px;padding:20px}
+.col.me{outline:3px solid var(--k);outline-offset:2px}
+.col h3{font-size:26px;margin-bottom:2px}
+.col small{color:var(--muted);display:block;margin-bottom:12px}
+.col ul{margin:0;padding-left:18px;font-size:15.5px}
+.col li{margin:5px 0}
+
+footer{border-top:1px solid var(--line);color:var(--muted);font-size:14px;padding:24px 0 36px}
+
+@media(max-width:860px){
+  .hero,.res{grid-template-columns:1fr}
+  .cols{grid-template-columns:1fr 1fr}
+}
+@media(max-width:520px){
+  .cols{grid-template-columns:1fr}
+  nav{display:none}
+  .card{padding:20px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">FIT<span>X</span></div>
+    <nav><a href="#hitung">Hitung</a><a href="#kategori">Program latihan</a></nav>
+  </header>
+
+  <main>
+    <div class="hero" id="hitung">
+      <div>
+        <h1>Tahu BMI-mu. <mark>Pilih latihanmu.</mark></h1>
+        <p class="lead">Isi nama, umur, berat, dan tinggi badan. Fit X menghitung BMI-mu dan langsung menyusun daftar latihan yang sesuai dengan kategorimu.</p>
+      </div>
+      <div class="card">
+        <h2>Data dirimu</h2>
+        <div class="grid2">
+          <div class="full"><label for="nama">Nama</label><input id="nama" autocomplete="given-name" placeholder="Contoh: Rina"></div>
+          <div><label for="umur">Umur (tahun)</label><input id="umur" type="number" inputmode="numeric" min="5" max="100" placeholder="25"></div>
+          <div><label for="berat">Berat badan (kg)</label><input id="berat" type="number" inputmode="decimal" min="10" max="300" step="0.1" placeholder="60"></div>
+          <div class="full"><label for="tinggi">Tinggi badan (cm)</label><input id="tinggi" type="number" inputmode="decimal" min="100" max="250" step="0.1" placeholder="165"></div>
+        </div>
+        <button class="go" id="btn" type="button">HITUNG BMI &amp; LIHAT LATIHAN</button>
+        <p class="err" id="err" role="alert"></p>
+      </div>
+    </div>
+
+    <section id="hasil" aria-live="polite">
+      <div class="card">
+        <div class="res">
+          <div>
+            <div class="meta" id="rNama"></div>
+            <div class="big" id="rBmi">0</div>
+            <span class="cat" id="rCat"></span>
+          </div>
+          <div>
+            <div class="scale">
+              <div class="bar"><i style="width:14%;background:var(--c1)"></i><i style="width:26%;background:var(--c2)"></i><i style="width:20%;background:var(--c3)"></i><i style="width:40%;background:var(--c4)"></i></div>
+              <div class="pin" id="pin" style="left:0"></div>
+            </div>
+            <div class="ticks"><span style="left:14%">18,5</span><span style="left:40%">25</span><span style="left:60%">30</span></div>
+            <h3 style="font-size:26px;margin-top:18px">Latihan untukmu</h3>
+            <ul class="ex" id="rEx"></ul>
+            <p class="note" id="rNote"></p>
+          </div>
+        </div>
+        <p class="cheer">Tetap semangat berolahraga!</p>
+      </div>
+    </section>
+
+    <section class="kat" id="kategori">
+      <h2>Program latihan per kategori</h2>
+      <p>BMI dihitung dari berat (kg) dibagi tinggi (m) kuadrat. Setiap kategori punya program latihan sendiri.</p>
+      <div class="cols" id="cols"></div>
+    </section>
+  </main>
+
+  <footer>Fit X memberi panduan umum, bukan diagnosis. Jika punya riwayat penyakit, cedera, atau sedang hamil, konsultasikan dulu dengan dokter atau pelatih sebelum mulai berolahraga.</footer>
+</div>
+
+<script>
+var KAT=[
+ {id:"kurang",nama:"Berat badan kurang",rentang:"BMI di bawah 18,5",warna:"var(--c1)",
+  latihan:[["Squat","3 × 10"],["Push-up","3 × 8"],["Plank","3 × 20–30 detik"],["Lunges","3 × 10 per kaki"],["Jogging ringan","15–20 menit"],["Stretching","5–10 menit"]]},
+ {id:"normal",nama:"Berat badan normal",rentang:"BMI 18,5 – 24,9",warna:"var(--c2)",
+  latihan:[["Jalan cepat","20–30 menit"],["Jogging","15–20 menit"],["Squat","3 × 10"],["Push-up","3 × 8"],["Plank","3 × 30 detik"],["Lunges","3 × 10 per kaki"]]},
+ {id:"lebih",nama:"Berat badan berlebih",rentang:"BMI 25 – 29,9",warna:"var(--c3)",
+  latihan:[["Jalan santai/cepat","20–30 menit"],["Bersepeda santai","15–20 menit"],["Squat ringan","2 × 10"],["Wall push-up","3 × 10"],["Plank","2 × 15–20 detik"],["Stretching","5–10 menit"]]},
+ {id:"obesitas",nama:"Obesitas",rentang:"BMI 30 ke atas",warna:"var(--c4)",
+  latihan:[["Jalan santai","Mulai bertahap"],["Latihan ringan","Sesuai kemampuan"]]}
+];
+var $=function(i){return document.getElementById(i)};
+var cols=$("cols");
+KAT.forEach(function(k){
+  var d=document.createElement("div");d.className="col";d.id="col-"+k.id;d.style.setProperty("--k",k.warna);
+  var h="<h3>"+k.nama+"</h3><small>"+k.rentang+"</small><ul>";
+  k.latihan.forEach(function(l){h+="<li>"+l[0]+" — "+l[1]+"</li>"});
+  d.innerHTML=h+"</ul>";cols.appendChild(d);
+});
+function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML}
+function fmt(n){return n.toFixed(2).replace(".",",")}
+$("btn").addEventListener("click",hitung);
+document.querySelectorAll("input").forEach(function(i){i.addEventListener("keydown",function(e){if(e.key==="Enter")hitung()})});
+function hitung(){
+  var nama=$("nama").value.trim(),umur=parseInt($("umur").value,10),
+      berat=parseFloat($("berat").value),tinggi=parseFloat($("tinggi").value),err=$("err");
+  if(!nama){err.textContent="Isi namamu dulu.";$("nama").focus();return}
+  if(!(umur>=5&&umur<=100)){err.textContent="Umur harus antara 5 dan 100 tahun.";$("umur").focus();return}
+  if(!(berat>=10&&berat<=300)){err.textContent="Berat badan harus antara 10 dan 300 kg.";$("berat").focus();return}
+  if(!(tinggi>=100&&tinggi<=250)){err.textContent="Tinggi badan harus antara 100 dan 250 cm.";$("tinggi").focus();return}
+  err.textContent="";
+  var m=tinggi/100,bmi=berat/(m*m);
+  var k=bmi<18.5?KAT[0]:bmi<25?KAT[1]:bmi<30?KAT[2]:KAT[3];
+  $("rNama").innerHTML=esc(nama)+", "+umur+" tahun";
+  $("rBmi").textContent=fmt(bmi);
+  var c=$("rCat");c.textContent=k.nama;c.style.background=k.warna;c.style.color="#14212E";
+  var ex="";k.latihan.forEach(function(l){ex+="<li><b>"+l[0]+"</b><em>"+l[1]+"</em></li>"});
+  $("rEx").innerHTML=ex;
+  $("rNote").textContent=k.id==="obesitas"?"Mulai pelan, tambah durasi sedikit demi sedikit, dan konsultasikan programmu dengan dokter.":"Lakukan 3–5 kali seminggu dan beri waktu istirahat di antaranya.";
+  var pct=Math.max(0,Math.min(100,(bmi-15)/25*100));
+  var pin=$("pin");pin.style.left="0%";
+  $("hasil").classList.add("on");
+  requestAnimationFrame(function(){requestAnimationFrame(function(){pin.style.left=pct+"%"})});
+  document.querySelectorAll(".col").forEach(function(x){x.classList.remove("me")});
+  $("col-"+k.id).classList.add("me");
+  $("hasil").scrollIntoView({behavior:"smooth",block:"start"});
+}
+</script>
+</body>
+</html>
