@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kuis Bangun Pagi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#EEEAFF;--card:#FFFFFF;--ink:#26144F;--muted:#6A5C93;--line:#D5CCF2;
+  --sun:#FFC72C;--sun-ink:#2B1B00;--ok:#1E8A4C;--bad:#D0293F;
+  --t0:#E8384F;--t1:#1F6FDB;--t2:#F2A900;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;--bg:#1D1148;--card:#2B1D63;--ink:#F4F0FF;--muted:#B9ADE3;--line:#43348A;--ok:#46C47A;--bad:#FF6B7F;}}
+:root[data-theme="dark"]{
+  color-scheme:dark;--bg:#1D1148;--card:#2B1D63;--ink:#F4F0FF;--muted:#B9ADE3;--line:#43348A;--ok:#46C47A;--bad:#FF6B7F;}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:500 18px/1.4 "Fredoka",system-ui,-apple-system,"Segoe UI",sans-serif}
+#app{min-height:100%;max-width:880px;margin:0 auto;padding:20px;display:flex;flex-direction:column;justify-content:center}
+button{font:inherit;cursor:pointer;border:0;color:inherit}
+button:focus-visible{outline:4px solid var(--ink);outline-offset:3px}
+h1{font-size:clamp(38px,9vw,68px);line-height:1;margin:0;font-weight:700;text-align:center}
+.center{text-align:center}
+.muted{color:var(--muted)}
+.sun{width:110px;height:110px;border-radius:50%;background:var(--sun);margin:0 auto 34px;box-shadow:0 0 0 14px color-mix(in srgb,var(--sun) 28%,transparent),0 0 0 30px color-mix(in srgb,var(--sun) 12%,transparent)}
+.rise{animation:rise .9s cubic-bezier(.2,.9,.3,1) both}
+@keyframes rise{from{transform:translateY(60px);opacity:0}to{transform:none;opacity:1}}
+.menu{display:flex;flex-direction:column;gap:14px;max-width:360px;margin:34px auto 0;width:100%}
+.btn{padding:16px 22px;border-radius:12px;font-weight:700;font-size:22px;box-shadow:0 5px 0 rgba(0,0,0,.28);transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.28)}
+.btn.main{background:var(--sun);color:var(--sun-ink)}
+.btn.alt{background:var(--card);border:2px solid var(--line);color:var(--ink)}
+.btn.next{background:var(--ink);color:var(--bg);align-self:center;min-width:240px}
+.hint{margin-top:26px;font-size:15px}
+.count{font-size:clamp(120px,32vw,240px);font-weight:700;line-height:1;text-align:center;animation:pop .9s ease-out}
+@keyframes pop{from{transform:scale(1.6);opacity:0}30%{opacity:1}to{transform:scale(1)}}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-weight:600}
+.chip{background:var(--card);border:2px solid var(--line);border-radius:99px;padding:4px 16px}
+.timer{height:12px;border-radius:6px;background:var(--line);overflow:hidden;margin-bottom:18px}
+.timer i{display:block;height:100%;width:100%;background:var(--sun);transform-origin:left}
+.timer.low i{background:var(--bad)}
+.q{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:26px 22px;text-align:center;font-size:clamp(22px,4.6vw,32px);font-weight:600;line-height:1.25;margin-bottom:18px;min-height:120px;display:flex;align-items:center;justify-content:center}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tile{display:flex;flex-direction:column;align-items:flex-start;gap:12px;text-align:left;padding:18px;min-height:150px;border-radius:14px;color:#fff;font-weight:600;font-size:clamp(17px,3.4vw,22px);line-height:1.2;box-shadow:0 6px 0 rgba(0,0,0,.28);transition:transform .08s,opacity .2s,box-shadow .08s}
+.tile:active:not(:disabled){transform:translateY(5px);box-shadow:0 1px 0 rgba(0,0,0,.28)}
+.tile svg{width:34px;height:34px;fill:#fff;flex:none}
+.tile b{font-size:15px;opacity:.9}
+.t0{background:var(--t0)}.t1{background:var(--t1)}.t2{background:var(--t2);color:#2B1B00}.t2 svg{fill:#2B1B00}
+.tile:disabled{cursor:default}
+.tile.dim{opacity:.35;box-shadow:none}
+.tile.right{outline:5px solid var(--ok);outline-offset:3px}
+.tile.wrong{outline:5px solid var(--bad);outline-offset:3px}
+.banner{border-radius:14px;padding:16px 20px;text-align:center;font-weight:700;font-size:24px;color:#fff;animation:rise .35s ease-out both}
+.banner.ok{background:var(--ok)}.banner.bad{background:var(--bad)}
+.banner small{display:block;font-weight:500;font-size:17px;margin-top:2px}
+.fb{display:flex;flex-direction:column;gap:14px;margin-top:18px}
+.score{font-size:clamp(70px,18vw,130px);font-weight:700;line-height:1;margin:14px 0 4px}
+.dots{display:flex;gap:10px;justify-content:center;margin:20px 0}
+.dots span{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:16px;font-weight:700}
+.dots .y{background:var(--ok)}.dots .n{background:var(--bad)}
+@media(max-width:620px){
+  .tiles{grid-template-columns:1fr}
+  .tile{flex-direction:row;align-items:center;min-height:0;padding:16px}
+  .q{min-height:96px;padding:18px 16px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+var Q=[
+ {t:"Apa manfaat utama bangun pagi?",o:["Membuat tubuh malas","Melatih kedisiplinan","Membuat terlambat sekolah"],k:1},
+ {t:"Pukul berapa sebaiknya kita bangun pagi?",o:["04.00-05.00","10.00-11.00","12.00-13.00"],k:0},
+ {t:"Apa yang sebaiknya dilakukan setelah bangun tidur?",o:["Tidur kembali","Bermain HP","Merapikan tempat tidur"],k:2},
+ {t:"Mengapa bangun pagi penting bagi pelajar?",o:["Agar tidak perlu belajar","Agar tidak terlambat sekolah","Agar bisa bermain sepanjang hari"],k:1},
+ {t:"Apa akibat jika sering bangun kesiangan?",o:["Lebih disiplin","Selalu tepat waktu","Terburu-buru dan terlambat"],k:2}
+];
+var BATAS=20, L="ABC";
+var SHAPE=[
+ '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 30 28H2z"/></svg>',
+ '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 1 31 16 16 31 1 16z"/></svg>',
+ '<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13"/></svg>'
+];
+var app=document.getElementById("app");
+var S={i:0,skor:0,poin:0,hasil:[],mulai:0,tick:null,locked:false};
+
+function stop(){clearInterval(S.tick);clearTimeout(S.tick)}
+function menu(){
+  stop();
+  app.innerHTML='<div class="center"><div class="sun rise"></div><h1>KUIS BANGUN PAGI</h1>'+
+  '<div class="menu"><button class="btn main" id="m1">Main</button><button class="btn alt" id="m2">Keluar</button></div>'+
+  '<p class="muted hint">Jawab 5 pertanyaan. Makin cepat menjawab, makin banyak poin.<br>Tekan 1 atau 2 untuk memilih menu.</p></div>';
+  document.getElementById("m1").onclick=mulai;
+  document.getElementById("m2").onclick=keluar;
+}
+function keluar(){
+  stop();
+  app.innerHTML='<div class="center"><div class="sun"></div><h1>Selesai. Terima kasih!</h1><div class="menu"><button class="btn alt" id="kb">Kembali ke menu</button></div></div>';
+  document.getElementById("kb").onclick=menu;
+}
+function mulai(){
+  stop();S.i=0;S.skor=0;S.poin=0;S.hasil=[];
+  var n=3;
+  (function t(){
+    if(n===0){tampil();return}
+    app.innerHTML='<p class="center muted" style="font-size:24px;margin:0">Kuis dimulai</p><div class="count" aria-live="assertive">'+n+'</div>';
+    n--;S.tick=setTimeout(t,900);
+  })();
+}
+function tampil(){
+  var q=Q[S.i];S.locked=false;
+  var h='<div class="top"><span class="chip">Pertanyaan '+(S.i+1)+' dari '+Q.length+'</span><span class="chip">'+S.poin+' poin</span></div>'+
+   '<div class="timer" id="tm"><i id="tb"></i></div><div class="q" id="qt"></div><div class="tiles">';
+  q.o.forEach(function(o,j){
+    h+='<button class="tile t'+j+'" data-j="'+j+'">'+SHAPE[j]+'<span><b>'+L[j]+'.</b> '+o+'</span></button>';
+  });
+  app.innerHTML=h+'</div><div id="fb"></div>';
+  document.getElementById("qt").textContent=(S.i+1)+". "+q.t;
+  document.querySelectorAll(".tile").forEach(function(b){b.onclick=function(){jawab(+b.dataset.j)}});
+  S.mulai=Date.now();
+  S.tick=setInterval(function(){
+    var s=(Date.now()-S.mulai)/1000,sisa=Math.max(0,1-s/BATAS);
+    var tb=document.getElementById("tb");if(!tb)return;
+    tb.style.transform="scaleX("+sisa+")";
+    document.getElementById("tm").className="timer"+(sisa<.25?" low":"");
+    if(sisa<=0)jawab(-1);
+  },100);
+}
+function jawab(j){
+  if(S.locked)return;S.locked=true;stop();
+  var q=Q[S.i],benar=(j===q.k),s=(Date.now()-S.mulai)/1000;
+  var gain=benar?Math.round(1000*(1-Math.min(s,BATAS)/BATAS/2)):0;
+  S.hasil.push(benar);if(benar){S.skor++;S.poin+=gain}
+  document.querySelectorAll(".tile").forEach(function(b,x){
+    b.disabled=true;
+    if(x===q.k)b.classList.add("right");
+    else if(x===j)b.classList.add("wrong");
+    else b.classList.add("dim");
+  });
+  var last=S.i===Q.length-1;
+  var msg=benar?'<div class="banner ok">Benar<small>+'+gain+' poin</small></div>':
+    '<div class="banner bad">'+(j<0?'Waktu habis':'Salah')+'<small>Jawaban yang benar: '+L[q.k]+'</small></div>';
+  document.getElementById("fb").innerHTML='<div class="fb">'+msg+'<button class="btn next" id="nx">'+(last?"Lihat skor":"Lanjut")+'</button></div>';
+  var nx=document.getElementById("nx");nx.focus();
+  nx.onclick=function(){if(last)akhir();else{S.i++;tampil()}};
+}
+function akhir(){
+  var pesan=S.skor===5?"Sempurna! Kamu juara bangun pagi.":S.skor>=3?"Bagus! Terus biasakan bangun pagi.":"Ayo coba lagi dan pelajari manfaat bangun pagi.";
+  var d="";S.hasil.forEach(function(b,x){d+='<span class="'+(b?"y":"n")+'" title="Pertanyaan '+(x+1)+'">'+(x+1)+'</span>'});
+  app.innerHTML='<div class="center"><p class="muted" style="margin:0;font-size:22px">Skor akhir kamu</p>'+
+   '<div class="score rise">'+S.skor+'<span class="muted" style="font-size:.4em"> dari '+Q.length+'</span></div>'+
+   '<div class="dots" aria-label="Hasil per pertanyaan">'+d+'</div>'+
+   '<p style="font-size:24px;margin:0 0 6px">'+S.poin+' poin</p><p class="muted" style="margin:0">'+pesan+'</p>'+
+   '<div class="menu"><button class="btn main" id="ul">Main lagi</button><button class="btn alt" id="mn">Menu</button></div></div>';
+  document.getElementById("ul").onclick=mulai;
+  document.getElementById("mn").onclick=menu;
+}
+document.addEventListener("keydown",function(e){
+  var k=e.key.toUpperCase();
+  if(document.getElementById("tb")&&!S.locked){
+    var j="ABC".indexOf(k);if(j<0)j="123".indexOf(k);
+    if(j>=0)jawab(j);
+  }else if(document.getElementById("m1")){
+    if(k==="1")mulai();else if(k==="2")keluar();
+  }
+});
+menu();
+</script>
+</body>
+</html>
